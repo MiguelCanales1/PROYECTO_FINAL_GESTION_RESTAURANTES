@@ -1,0 +1,24 @@
+{
+  "_id": "pedido123",
+  "usuario": {
+    "id": "user1",
+    "nombre": "Miguel"
+  },
+  "restaurante": {
+    "id": "rest1",
+    "nombre": "Tacos El Gordo",
+    "categoria": "mexicana"
+  },
+  "repartidor": {
+    "id": "rep1",
+    "nombre": "Juan",
+    "tipo_paqueteria": "Uber"
+  },
+  "fecha": "2026-04-23",
+  "total": 250,
+  "estado": "entregado",
+  "direccion_entrega": "Guadalajara",
+  "tiempo_entrega": 30,
+  "distancia": 5.2,
+  "calificacion": 5
+}
