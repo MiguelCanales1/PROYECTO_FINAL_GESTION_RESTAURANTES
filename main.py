@@ -1,139 +1,221 @@
-def menu_principal():
-    while True:
-        print("\n=== MENÚ PRINCIPAL ===")
-        print("1. Consultas SQL")
-        print("2. Consultas MongoDB")
-        print("3. Consultas Dgraph")
-        print("0. Salir")
+from connect import get_cassandra
 
-        opcion = input("Selecciona una opción: ")
+cluster, session = get_cassandra()
+session.set_keyspace("restaurante_db")
 
-        if opcion == "1":
-            menu_sql()
-        elif opcion == "2":
-            menu_mongo()
-        elif opcion == "3":
-            menu_dgraph()
-        elif opcion == "0":
-            print("Saliendo...")
-            break
-        else:
-            print("Opción inválida")
+def mostrar_menu():
+    print("\n========== GESTION DE RESTAURANTES ==========")
 
+    print("\n--------------- CONSULTAS ----------------")
 
-#  SQL
-def menu_sql():
-    while True:
-        print("\n=== CONSULTAS SQL ===")
-        print("1. Historial de pedidos por usuario")
-        print("2. Pedidos recientes por usuario")
-        print("3. Pedidos por restaurante")
-        print("4. Pedidos por fecha")
-        print("5. Pedidos por repartidor")
-        print("6. Por categoría de restaurante")
-        print("7. Pedidos por proveedor")
-        print("8. Tipo de paquetería")
-        print("0. Regresar")
+    # CASSANDRA
+    print("\n[CASSANDRA]")
+    print("1. Historial de pedidos por usuario")
+    print("2. Ultimos pedidos entregados de un usuario")
+    print("3. Pedidos por restaurante")
+    print("4. Pedidos por fecha")
+    print("5. Pedidos por repartidor")
+    print("6. Pedidos por zona y restaurante")
+    print("7. Entregas por paqueteria")
+    print("8. Ver pedidos recientes")
 
-        opcion = input("Selecciona una opción: ")
+    # MONGODB
+    print("\n[MONGODB]")
+    print("9. Pedidos mas costosos por cliente")
+    print("10. Pedido que mas tardo en llegar")
+    print("11. Clientes mas frecuentes de restaurante")
+    print("12. Pedidos recientes por codigo postal")
+    print("13. Restaurantes con mas pedidos")
+    print("14. Clientes con mayor gasto total")
+    print("15. Pedidos con mayor distancia")
+    print("16. Mejores repartidores")
 
-        if opcion == "1":
-            print("Ejecutando consulta 1...")
-        elif opcion == "2":
-            print("Ejecutando consulta 2...")
-        elif opcion == "3":
-            print("Ejecutando consulta 3...")
-        elif opcion == "4":
-            print("Ejecutando consulta 4...")
-        elif opcion == "5":
-            print("Ejecutando consulta 5...")
-        elif opcion == "6":
-            print("Ejecutando consulta 6...")
-        elif opcion == "7":
-            print("Ejecutando consulta 7...")
-        elif opcion == "8":
-            print("Ejecutando consulta 8...")
-        elif opcion == "0":
-            break
-        else:
-            print("Opción inválida")
+    # DGRAPH
+    print("\n[DGRAPH]")
+    print("17. Restaurantes favoritos por usuario")
+    print("18. Platillos mas consumidos")
+    print("19. Restaurantes relacionados")
+    print("20. Recomendacion de restaurantes")
+    print("21. Usuarios con preferencias similares")
+    print("22. Restaurantes por zona y categoria")
+    print("23. Relacion repartidor-restaurante-zona")
+    print("24. Relacion completa de pedido")
 
+    print("\n0. Salir")
 
-# MongoDB
-def menu_mongo():
-    while True:
-        print("\n=== CONSULTAS MongoDB ===")
-        print("9. Pedidos más costosos")
-        print("10. Pedido que más tardó por usuario")
-        print("11. Menú más caro")
-        print("12. Pedidos más recientes por zona")
-        print("13. Restaurante con más pedidos")
-        print("14. Clientes con mayor gasto")
-        print("15. Pedidos con mayor distancia")
-        print("16. Repartidores mejor calificados")
-        print("0. Regresar")
+while True:
 
-        opcion = input("Selecciona una opción: ")
+    mostrar_menu()
 
-        if opcion == "9":
-            print("Ejecutando consulta 9...")
-        elif opcion == "10":
-            print("Ejecutando consulta 10...")
-        elif opcion == "11":
-            print("Ejecutando consulta 11...")
-        elif opcion == "12":
-            print("Ejecutando consulta 12...")
-        elif opcion == "13":
-            print("Ejecutando consulta 13...")
-        elif opcion == "14":
-            print("Ejecutando consulta 14...")
-        elif opcion == "15":
-            print("Ejecutando consulta 15...")
-        elif opcion == "16":
-            print("Ejecutando consulta 16...")
-        elif opcion == "0":
-            break
-        else:
-            print("Opción inválida")
+    opcion = input("\nSelecciona una opcion: ")
 
+    if opcion == "0":
+        print("\nSaliendo del sistema...")
+        break
 
-# Dgraph 
-def menu_dgraph():
-    while True:
-        print("\n=== CONSULTAS Dgraph ===")
-        print("17. Restaurantes favoritos por usuario")
-        print("18. Platillos más consumidos")
-        print("19. Restaurantes relacionados")
-        print("20. Recomendación de restaurantes")
-        print("21. Usuarios con preferencias similares")
-        print("22. Restaurantes por zona y tipo")
-        print("23. Relación repartidores-restaurantes-zonas")
-        print("24. Relación completa de un pedido")
-        print("0. Regresar")
+    elif opcion == "1":
+        usuario = input("Nombre del usuario: ")
 
-        opcion = input("Selecciona una opción: ")
+        query = """
+        SELECT * FROM pedidos_por_usuario
+        WHERE usuario = %s;
+        """
 
-        if opcion == "17":
-            print("Ejecutando consulta 17...")
-        elif opcion == "18":
-            print("Ejecutando consulta 18...")
-        elif opcion == "19":
-            print("Ejecutando consulta 19...")
-        elif opcion == "20":
-            print("Ejecutando consulta 20...")
-        elif opcion == "21":
-            print("Ejecutando consulta 21...")
-        elif opcion == "22":
-            print("Ejecutando consulta 22...")
-        elif opcion == "23":
-            print("Ejecutando consulta 23...")
-        elif opcion == "24":
-            print("Ejecutando consulta 24...")
-        elif opcion == "0":
-            break
-        else:
-            print("Opción inválida")
+        rows = session.execute(query, [usuario])
 
+        print("\n--- HISTORIAL DE PEDIDOS ---")
+        for row in rows:
+            print(row)
 
-# Ejecutar menu
-menu_principal()
+    elif opcion == "2":
+        usuario = input("Nombre del usuario: ")
+
+        query = """
+        SELECT * FROM pedidos_por_usuario
+        WHERE usuario = %s
+        LIMIT 10;
+        """
+
+        rows = session.execute(query, [usuario])
+
+        print("\n--- ULTIMOS PEDIDOS ENTREGADOS ---")
+        for row in rows:
+            if row.estado == "entregado":
+                print(row)
+
+    elif opcion == "3":
+        restaurante = input("Nombre del restaurante: ")
+
+        query = """
+        SELECT * FROM pedidos_por_restaurante
+        WHERE restaurante = %s;
+        """
+
+        rows = session.execute(query, [restaurante])
+
+        print("\n--- PEDIDOS DEL RESTAURANTE ---")
+        for row in rows:
+            print(row)
+
+    elif opcion == "4":
+        fecha = input("Fecha (YYYY-MM-DD): ")
+
+        query = """
+        SELECT * FROM pedidos_por_fecha
+        WHERE fecha = %s;
+        """
+
+        rows = session.execute(query, [fecha])
+
+        print("\n--- PEDIDOS POR FECHA ---")
+        for row in rows:
+            print(row)
+
+    elif opcion == "5":
+        repartidor = input("Nombre del repartidor: ")
+
+        query = """
+        SELECT * FROM pedidos_por_repartidor
+        WHERE repartidor = %s;
+        """
+
+        rows = session.execute(query, [repartidor])
+
+        print("\n--- PEDIDOS DEL REPARTIDOR ---")
+        for row in rows:
+            print(row)
+
+    elif opcion == "6":
+        zona = input("Zona: ")
+        restaurante = input("Restaurante: ")
+
+        query = """
+        SELECT * FROM pedidos_por_zona_restaurante
+        WHERE zona = %s
+        AND restaurante = %s;
+        """
+
+        rows = session.execute(query, [zona, restaurante])
+
+        print("\n--- PEDIDOS POR ZONA Y RESTAURANTE ---")
+        for row in rows:
+            print(row)
+
+    elif opcion == "7":
+        paqueteria = input("Tipo de paqueteria: ")
+
+        query = """
+        SELECT * FROM entregas_por_paqueteria
+        WHERE tipo_paqueteria = %s;
+        """
+
+        rows = session.execute(query, [paqueteria])
+
+        print("\n--- ENTREGAS POR PAQUETERIA ---")
+        for row in rows:
+            print(row)
+
+    elif opcion == "8":
+        query = """
+        SELECT * FROM pedidos_por_usuario
+        LIMIT 20;
+        """
+
+        rows = session.execute(query)
+
+        print("\n--- PEDIDOS RECIENTES ---")
+        for row in rows:
+            print(row)
+
+    elif opcion == "9":
+        print("\nConsulta MongoDB 1")
+
+    elif opcion == "10":
+        print("\nConsulta MongoDB 2")
+
+    elif opcion == "11":
+        print("\nConsulta MongoDB 3")
+
+    elif opcion == "12":
+        print("\nConsulta MongoDB 4")
+
+    elif opcion == "13":
+        print("\nConsulta MongoDB 5")
+
+    elif opcion == "14":
+        print("\nConsulta MongoDB 6")
+
+    elif opcion == "15":
+        print("\nConsulta MongoDB 7")
+
+    elif opcion == "16":
+        print("\nConsulta MongoDB 8")
+    
+    elif opcion == "17":
+        print("\nConsulta Dgraph 1")
+
+    elif opcion == "18":
+        print("\nConsulta Dgraph 2")
+
+    elif opcion == "19":
+        print("\nConsulta Dgraph 3")
+
+    elif opcion == "20":
+        print("\nConsulta Dgraph 4")
+
+    elif opcion == "21":
+        print("\nConsulta Dgraph 5")
+
+    elif opcion == "22":
+        print("\nConsulta Dgraph 6")
+
+    elif opcion == "23":
+        print("\nConsulta Dgraph 7")
+
+    elif opcion == "24":
+        print("\nConsulta Dgraph 8")
+    
+    else:
+        print("\nOpcion invalida.")
+
+cluster.shutdown()
