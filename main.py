@@ -3,6 +3,27 @@ from connect import get_cassandra
 cluster, session = get_cassandra()
 session.set_keyspace("restaurante_db")
 
+def mostrar_pedido(row):
+
+    print(f"""
+====================================
+Pedido: {row.id_pedido}
+
+Usuario: {getattr(row, 'usuario', 'N/A')}
+Restaurante: {getattr(row, 'restaurante', 'N/A')}
+Repartidor: {getattr(row, 'repartidor', 'N/A')}
+
+Estado: {getattr(row, 'estado', 'N/A')}
+Total: ${getattr(row, 'total', 'N/A')}
+
+Distancia: {getattr(row, 'distancia', 'N/A')} km
+Tiempo entrega: {getattr(row, 'tiempo_entrega', 'N/A')} min
+Calificación: {getattr(row, 'calificacion', 'N/A')}
+
+Fecha: {row.fecha}
+====================================
+""")
+
 def mostrar_menu():
     print("\n========== GESTION DE RESTAURANTES ==========")
 
@@ -15,9 +36,9 @@ def mostrar_menu():
     print("3. Pedidos por restaurante")
     print("4. Pedidos por fecha")
     print("5. Pedidos por repartidor")
-    print("6. Pedidos por zona y restaurante")
-    print("7. Entregas por paqueteria")
-    print("8. Ver pedidos recientes")
+    print("6. Pedidos categoria de restaurante")
+    print("7. Pedidos por zona y restaurante")
+    print("8. Entregas por paqueteria")
 
     # MONGODB
     print("\n[MONGODB]")
@@ -65,7 +86,7 @@ while True:
 
         print("\n--- HISTORIAL DE PEDIDOS ---")
         for row in rows:
-            print(row)
+            mostrar_pedido(row)
 
     elif opcion == "2":
         usuario = input("Nombre del usuario: ")
@@ -81,7 +102,7 @@ while True:
         print("\n--- ULTIMOS PEDIDOS ENTREGADOS ---")
         for row in rows:
             if row.estado == "entregado":
-                print(row)
+                mostrar_pedido(row)
 
     elif opcion == "3":
         restaurante = input("Nombre del restaurante: ")
@@ -95,7 +116,7 @@ while True:
 
         print("\n--- PEDIDOS DEL RESTAURANTE ---")
         for row in rows:
-            print(row)
+            mostrar_pedido(row)
 
     elif opcion == "4":
         fecha = input("Fecha (YYYY-MM-DD): ")
@@ -109,7 +130,7 @@ while True:
 
         print("\n--- PEDIDOS POR FECHA ---")
         for row in rows:
-            print(row)
+            mostrar_pedido(row)
 
     elif opcion == "5":
         repartidor = input("Nombre del repartidor: ")
@@ -123,27 +144,44 @@ while True:
 
         print("\n--- PEDIDOS DEL REPARTIDOR ---")
         for row in rows:
-            print(row)
+            mostrar_pedido(row)
 
     elif opcion == "6":
+    
+
+        categoria = input("Categoria del restaurante: ")
+
+        query = """
+        SELECT * FROM pedidos_por_categoria
+        WHERE categoria = %s;
+        """
+
+        rows = session.execute(query, [categoria])
+
+        print("\n--- PEDIDOS POR CATEGORIA ---")
+
+        for row in rows:
+            mostrar_pedido(row)
+
+    elif opcion == "7":
+
         zona = input("Zona: ")
         restaurante = input("Restaurante: ")
 
         query = """
         SELECT * FROM pedidos_por_zona_restaurante
-        WHERE zona = %s
-        AND restaurante = %s;
+        WHERE zona = %s AND restaurante = %s;
         """
 
         rows = session.execute(query, [zona, restaurante])
 
         print("\n--- PEDIDOS POR ZONA Y RESTAURANTE ---")
+
         for row in rows:
-            print(row)
+            mostrar_pedido(row)
 
-    elif opcion == "7":
+    elif opcion == "8":
         paqueteria = input("Tipo de paqueteria: ")
-
         query = """
         SELECT * FROM entregas_por_paqueteria
         WHERE tipo_paqueteria = %s;
@@ -151,21 +189,9 @@ while True:
 
         rows = session.execute(query, [paqueteria])
 
-        print("\n--- ENTREGAS POR PAQUETERIA ---")
+        print("\n--- ENTREGAS POR PAQUETERIA  ---")
         for row in rows:
-            print(row)
-
-    elif opcion == "8":
-        query = """
-        SELECT * FROM pedidos_por_usuario
-        LIMIT 20;
-        """
-
-        rows = session.execute(query)
-
-        print("\n--- PEDIDOS RECIENTES ---")
-        for row in rows:
-            print(row)
+            mostrar_pedido(row)
 
     elif opcion == "9":
         print("\nConsulta MongoDB 1")

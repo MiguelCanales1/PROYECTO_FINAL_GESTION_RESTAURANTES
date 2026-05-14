@@ -85,7 +85,8 @@ with open("data/pedidos.csv", mode="w", newline="", encoding="utf-8") as file:
         "metodo_pago",
         "zona",
         "direccion",
-        "tipo_paqueteria"
+        "tipo_paqueteria",
+        "categoria"
     ])
 
     # GENERAR 300 PEDIDOS
@@ -108,7 +109,8 @@ with open("data/pedidos.csv", mode="w", newline="", encoding="utf-8") as file:
             random.choice(metodos_pago),
             random.choice(zonas),
             fake.address().replace("\n", " "),
-            random.choice(paqueterias)
+            random.choice(paqueterias),
+            categoria
         ])
 
 print("CSV generado correctamente.")

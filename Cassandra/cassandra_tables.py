@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from connect import get_cassandra
 
 # Conexion a Cassandra
@@ -112,6 +117,20 @@ CREATE TABLE IF NOT EXISTS entregas_por_paqueteria (
     tiempo_entrega INT,
     distancia DECIMAL,
     PRIMARY KEY ((tipo_paqueteria), fecha, id_pedido)
+) WITH CLUSTERING ORDER BY (fecha DESC);
+""")
+
+#tabla pedidos por categoria
+session.execute("""
+CREATE TABLE IF NOT EXISTS pedidos_por_categoria (
+    categoria TEXT,
+    fecha TIMESTAMP,
+    id_pedido UUID,
+    restaurante TEXT,
+    usuario TEXT,
+    total DECIMAL,
+    estado TEXT,
+    PRIMARY KEY ((categoria), fecha, id_pedido)
 ) WITH CLUSTERING ORDER BY (fecha DESC);
 """)
 
