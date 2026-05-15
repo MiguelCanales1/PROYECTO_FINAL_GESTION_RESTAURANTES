@@ -1,9 +1,47 @@
 from connect import get_cassandra
 from connect import get_mongodb
+from connect import get_dgraph
+stub, client_dg = get_dgraph
 
 client, db_mongo, coll = get_mongodb()
 cluster, session = get_cassandra()
 session.set_keyspace("restaurante_db")
+
+def mostrar_pedido(row):
+
+    print("\n================================")
+
+    if hasattr(row, 'id_pedido'):
+        print(f"Pedido: {row.id_pedido}")
+
+    if hasattr(row, 'usuario'):
+        print(f"Usuario: {row.usuario}")
+
+    if hasattr(row, 'restaurante'):
+        print(f"Restaurante: {row.restaurante}")
+
+    if hasattr(row, 'repartidor'):
+        print(f"Repartidor: {row.repartidor}")
+
+    if hasattr(row, 'estado'):
+        print(f"\nEstado: {row.estado}")
+
+    if hasattr(row, 'total'):
+        print(f"Total: ${row.total}")
+
+    if hasattr(row, 'distancia'):
+        print(f"\nDistancia: {row.distancia} km")
+
+    if hasattr(row, 'tiempo_entrega'):
+        print(f"Tiempo entrega: {row.tiempo_entrega} min")
+
+    if hasattr(row, 'calificacion'):
+        print(f"Calificación: {row.calificacion}")
+
+    if hasattr(row, 'fecha'):
+        print(f"\nFecha: {row.fecha}")
+
+    print("================================")
 
 def mostrar_menu():
     print("\n========== GESTION DE RESTAURANTES ==========")
@@ -67,7 +105,7 @@ while True:
 
         print("\n--- HISTORIAL DE PEDIDOS ---")
         for row in rows:
-            print(row)
+             mostrar_pedido(row)
 
     elif opcion == "2":
         usuario = input("Nombre del usuario: ")
@@ -83,7 +121,7 @@ while True:
         print("\n--- ULTIMOS PEDIDOS ENTREGADOS ---")
         for row in rows:
             if row.estado == "entregado":
-                print(row)
+                 mostrar_pedido(row)
 
     elif opcion == "3":
         restaurante = input("Nombre del restaurante: ")
@@ -97,7 +135,7 @@ while True:
 
         print("\n--- PEDIDOS DEL RESTAURANTE ---")
         for row in rows:
-            print(row)
+             mostrar_pedido(row)
 
     elif opcion == "4":
         fecha = input("Fecha (YYYY-MM-DD): ")
@@ -111,7 +149,7 @@ while True:
 
         print("\n--- PEDIDOS POR FECHA ---")
         for row in rows:
-            print(row)
+             mostrar_pedido(row)
 
     elif opcion == "5":
         repartidor = input("Nombre del repartidor: ")
@@ -125,7 +163,7 @@ while True:
 
         print("\n--- PEDIDOS DEL REPARTIDOR ---")
         for row in rows:
-            print(row)
+             mostrar_pedido(row)
 
     elif opcion == "6":
         zona = input("Zona: ")
@@ -141,7 +179,7 @@ while True:
 
         print("\n--- PEDIDOS POR ZONA Y RESTAURANTE ---")
         for row in rows:
-            print(row)
+             mostrar_pedido(row)
 
     elif opcion == "7":
         paqueteria = input("Tipo de paqueteria: ")
@@ -155,7 +193,7 @@ while True:
 
         print("\n--- ENTREGAS POR PAQUETERIA ---")
         for row in rows:
-            print(row)
+             mostrar_pedido(row)
 
     elif opcion == "8":
         query = """
@@ -167,7 +205,7 @@ while True:
 
         print("\n--- PEDIDOS RECIENTES ---")
         for row in rows:
-            print(row)
+             mostrar_pedido(row)
     #------------------
     #MongoDB
     #-----------------
