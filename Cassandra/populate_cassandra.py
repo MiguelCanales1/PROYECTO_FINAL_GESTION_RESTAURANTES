@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from connect import get_cassandra
 
-#conectar
+#conectar el cluster completo
 cluster, session = get_cassandra()
 
 session.set_keyspace("restaurante_db")
@@ -18,7 +18,7 @@ print("Conectado a Cassandra.")
 
 #leer csv
 with open("data/pedidos.csv", newline="", encoding="utf-8") as file:
-
+#convertir a diccionario
     reader = csv.DictReader(file)
 #convertir tipos
     for row in reader:
