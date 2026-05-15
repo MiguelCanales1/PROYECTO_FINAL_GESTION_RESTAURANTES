@@ -1,6 +1,11 @@
 from connect import get_cassandra
 from connect import get_mongodb
+from connect import get_dgraph
+from connect import start_containers
 
+start_containers()
+
+stub, client_dg = get_dgraph
 client, db_mongo, coll = get_mongodb()
 cluster, session = get_cassandra()
 session.set_keyspace("restaurante_db")
