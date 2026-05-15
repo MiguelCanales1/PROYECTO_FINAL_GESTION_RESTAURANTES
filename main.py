@@ -2,6 +2,7 @@ from connect import get_cassandra
 from connect import get_mongodb
 from connect import get_dgraph
 from connect import start_containers
+import Dgraph.model as dg
 
 start_containers()
 
