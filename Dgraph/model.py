@@ -95,7 +95,6 @@ def create_schema():
 # =========================================
 def restaurantes_favoritos(user_id):
     txn = client.txn()
-    # Buscamos tanto en FAVORITE como en PLACES (pedidos realizados)
     query = """
     query q($user: string){
         usuarios(func: eq(user_name, $user)) {
@@ -317,22 +316,4 @@ def relacion_pedido(order_id):
     res = txn.query(query, variables={"$order_id": order_id})
     return json.loads(res.json)
 
-
-# EXTRA: Auxiliar
-def platillos_mas_consumidos():
-    txn = client.txn()
-    query = """
-    {
-      platillos(func: type(Platillo)) {
-        dish_name
-        category
-        num_pedidos: count(~CONTAINS)
-      }
-    }
-    """
-    res = txn.query(query)
-    data = json.loads(res.json)
-    if "platillos" in data:
-        data["platillos"].sort(key=lambda x: x.get("num_pedidos", 0), reverse=True)
-        data["platillos"] = data["platillos"][:10]
-    return data
+        

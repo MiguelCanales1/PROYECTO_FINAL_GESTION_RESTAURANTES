@@ -1,19 +1,58 @@
-from connect import get_cassandra, get_mongodb, get_dgraph, start_containers
+from connect import get_cassandra
+from connect import get_mongodb
+from connect import get_dgraph
+from connect import start_containers
 import Dgraph.model as dg
 
-# Iniciamos contenedores de Docker si están apagados
 start_containers()
 
-# Inicializamos conexiones
 stub, client_dg = get_dgraph()
-client_mg, db_mongo, coll = get_mongodb()
+client, db_mongo, coll = get_mongodb()
 cluster, session = get_cassandra()
 session.set_keyspace("restaurante_db")
 
+def mostrar_pedido(row):
+
+    print("\n================================")
+
+    if hasattr(row, 'id_pedido'):
+        print(f"Pedido: {row.id_pedido}")
+
+    if hasattr(row, 'usuario'):
+        print(f"Usuario: {row.usuario}")
+
+    if hasattr(row, 'restaurante'):
+        print(f"Restaurante: {row.restaurante}")
+
+    if hasattr(row, 'repartidor'):
+        print(f"Repartidor: {row.repartidor}")
+
+    if hasattr(row, 'estado'):
+        print(f"\nEstado: {row.estado}")
+
+    if hasattr(row, 'total'):
+        print(f"Total: ${row.total}")
+
+    if hasattr(row, 'distancia'):
+        print(f"\nDistancia: {row.distancia} km")
+
+    if hasattr(row, 'tiempo_entrega'):
+        print(f"Tiempo entrega: {row.tiempo_entrega} min")
+
+    if hasattr(row, 'calificacion'):
+        print(f"Calificación: {row.calificacion}")
+
+    if hasattr(row, 'fecha'):
+        print(f"\nFecha: {row.fecha}")
+
+    print("================================")
 
 def mostrar_menu():
     print("\n========== GESTION DE RESTAURANTES ==========")
+
     print("\n--------------- CONSULTAS ----------------")
+
+    # CASSANDRA
     print("\n[CASSANDRA]")
     print("1. Historial de pedidos por usuario")
     print("2. Ultimos pedidos entregados de un usuario")
@@ -23,6 +62,8 @@ def mostrar_menu():
     print("6. Pedidos por zona y restaurante")
     print("7. Entregas por paqueteria")
     print("8. Ver pedidos recientes")
+
+    # MONGODB
     print("\n[MONGODB]")
     print("9. Pedidos mas costosos por cliente")
     print("10. Pedido que mas tardo en llegar")
@@ -32,128 +73,237 @@ def mostrar_menu():
     print("14. Clientes con mayor gasto total")
     print("15. Pedidos con mayor distancia")
     print("16. Mejores repartidores")
+
+    # DGRAPH
     print("\n[DGRAPH]")
     print("17. Restaurantes favoritos por usuario")
-    print("18. Platillos más consumidos por usuario")
-    print("19. Restaurantes relacionados por clientes")
+    print("18. Platillos mas consumidos")
+    print("19. Restaurantes relacionados")
     print("20. Recomendacion de restaurantes")
     print("21. Usuarios con preferencias similares")
     print("22. Restaurantes por zona y categoria")
     print("23. Relacion repartidor-restaurante-zona")
     print("24. Relacion completa de pedido")
+
     print("\n0. Salir")
 
 while True:
-    mostrar_menu()
-    opcion = input("\nSelecciona una opcion: ").strip()
 
-    if not opcion:
-        continue
+    mostrar_menu()
+
+    opcion = input("\nSelecciona una opcion: ")
 
     if opcion == "0":
         print("\nSaliendo del sistema...")
         break
 
-    # --- CASSANDRA ---
     elif opcion == "1":
         usuario = input("Nombre del usuario: ")
-        query = "SELECT * FROM pedidos_por_usuario WHERE usuario = %s;"
+
+        query = """
+        SELECT * FROM pedidos_por_usuario
+        WHERE usuario = %s;
+        """
+
         rows = session.execute(query, [usuario])
+
         print("\n--- HISTORIAL DE PEDIDOS ---")
-        for row in rows: print(row)
+        for row in rows:
+             mostrar_pedido(row)
 
     elif opcion == "2":
         usuario = input("Nombre del usuario: ")
-        query = "SELECT * FROM pedidos_por_usuario WHERE usuario = %s LIMIT 10;"
+
+        query = """
+        SELECT * FROM pedidos_por_usuario
+        WHERE usuario = %s
+        LIMIT 10;
+        """
+
         rows = session.execute(query, [usuario])
+
         print("\n--- ULTIMOS PEDIDOS ENTREGADOS ---")
         for row in rows:
-            if row.estado == "entregado": print(row)
+            if row.estado == "entregado":
+                 mostrar_pedido(row)
 
     elif opcion == "3":
         restaurante = input("Nombre del restaurante: ")
-        query = "SELECT * FROM pedidos_por_restaurante WHERE restaurante = %s;"
+
+        query = """
+        SELECT * FROM pedidos_por_restaurante
+        WHERE restaurante = %s;
+        """
+
         rows = session.execute(query, [restaurante])
+
         print("\n--- PEDIDOS DEL RESTAURANTE ---")
-        for row in rows: print(row)
+        for row in rows:
+             mostrar_pedido(row)
 
     elif opcion == "4":
         fecha = input("Fecha (YYYY-MM-DD): ")
-        query = "SELECT * FROM pedidos_por_fecha WHERE fecha = %s;"
+
+        query = """
+        SELECT * FROM pedidos_por_fecha
+        WHERE fecha = %s;
+        """
+
         rows = session.execute(query, [fecha])
+
         print("\n--- PEDIDOS POR FECHA ---")
-        for row in rows: print(row)
+        for row in rows:
+             mostrar_pedido(row)
 
     elif opcion == "5":
         repartidor = input("Nombre del repartidor: ")
-        query = "SELECT * FROM pedidos_por_repartidor WHERE repartidor = %s;"
+
+        query = """
+        SELECT * FROM pedidos_por_repartidor
+        WHERE repartidor = %s;
+        """
+
         rows = session.execute(query, [repartidor])
+
         print("\n--- PEDIDOS DEL REPARTIDOR ---")
-        for row in rows: print(row)
+        for row in rows:
+             mostrar_pedido(row)
 
     elif opcion == "6":
         zona = input("Zona: ")
         restaurante = input("Restaurante: ")
-        query = "SELECT * FROM pedidos_por_zona_restaurante WHERE zona = %s AND restaurante = %s;"
+
+        query = """
+        SELECT * FROM pedidos_por_zona_restaurante
+        WHERE zona = %s
+        AND restaurante = %s;
+        """
+
         rows = session.execute(query, [zona, restaurante])
+
         print("\n--- PEDIDOS POR ZONA Y RESTAURANTE ---")
-        for row in rows: print(row)
+        for row in rows:
+             mostrar_pedido(row)
 
     elif opcion == "7":
         paqueteria = input("Tipo de paqueteria: ")
-        query = "SELECT * FROM entregas_por_paqueteria WHERE tipo_paqueteria = %s;"
+
+        query = """
+        SELECT * FROM entregas_por_paqueteria
+        WHERE tipo_paqueteria = %s;
+        """
+
         rows = session.execute(query, [paqueteria])
+
         print("\n--- ENTREGAS POR PAQUETERIA ---")
-        for row in rows: print(row)
+        for row in rows:
+             mostrar_pedido(row)
 
     elif opcion == "8":
-        query = "SELECT * FROM pedidos_por_usuario LIMIT 20;"
-        rows = session.execute(query)
-        print("\n--- PEDIDOS RECIENTES ---")
-        for row in rows: print(row)
+        query = """
+        SELECT * FROM pedidos_por_usuario
+        LIMIT 20;
+        """
 
-    # --- MONGODB ---
+        rows = session.execute(query)
+
+        print("\n--- PEDIDOS RECIENTES ---")
+        for row in rows:
+             mostrar_pedido(row)
+    #------------------
+    #MongoDB
+    #-----------------
     elif opcion == "9":
-        pipeline = [{"$group": {"_id": "$customerName", "maxGasto": {"$max": "$orderPrice"}}}, {"$sort": {"maxGasto": -1}}]
+        print("\nPedidos mas costosos por cliente")
+        pipeline = [
+            {"$group": {"_id": "$customerName", "maxGasto": {"$max": "$orderPrice"}}},
+            {"$sort": {"maxGasto": -1}}
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(f"Cliente: {res['_id']} | Pedido mas caro: ${res['maxGasto']}")
+        for res in results:
+            print(f"Cliente: {res['_id']} y su pedido mas caro es de ${res['maxGasto']}")
 
     elif opcion == "10":
-        pipeline = [{"$group": {"_id": "$customerName", "maxTardanza": {"$max": "$deliveryTime"}}}]
+        print("\nPedido que mas tardo y menor distancia por cliente")
+        pipeline = [
+            {"$group": {
+                "_id": "$customerName", 
+                "PedidoConMayorTardanza": {"$max": "$deliveryTime"},
+                "PedidoConMenorDistancia": {"$min": "$deliveryDistance"}
+            }}
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(f"Cliente: {res['_id']} | Tiempo max: {res['maxTardanza']} min")
+        for res in results:
+            print(f"Cliente: {res['_id']}, tiempo maximo de entrega: {res['PedidoConMayorTardanza']}, pedido con la distancia mas corta: {res['PedidoConMenorDistancia']} km")
 
     elif opcion == "11":
-        rest_name = input("Nombre del restaurante: ")
-        pipeline = [{"$match": {"restaurantName": rest_name}}, {"$group": {"_id": "$customerName", "count": {"$count": {}}}}, {"$sort": {"count": -1}}, {"$limit": 10}]
+        rest_name = input("Nombre del restaurante")
+        print(f"\nTop clientes de {rest_name}")
+        pipeline = [
+            {"$match": {"restaurantName": rest_name}}, 
+            {"$group": {"_id": "$customerName", "CantidadTotalDePedidosAlRestaurante": {"$count": {}}}},
+            {"$sort": {"CantidadTotalDePedidosAlRestaurante": -1 }},
+            {"$limit": 10}
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(f"Cliente: {res['_id']} | Pedidos: {res['count']}")
+        for res in results:
+            print(f"Cliente: {res['_id']} tiene {res['CantidadTotalDePedidosAlRestaurante']} pedidos")
 
     elif opcion == "12":
-        cp = input("Código Postal: ")
-        pipeline = [{"$match": {"postCode": cp}}, {"$sort": {"orderDate": -1}}, {"$limit": 5}]
+        colonia = input("Introduce el nombre de la colonia")
+        print(f"\nUltimos pedidos en {colonia}")
+        pipeline = [
+            {"$match": {"postCode": colonia}}, 
+            {"$sort": {"orderDate" : -1}}, 
+            {"$limit": 5},
+            {"$project": {"_id": 0, "customerName": 1, "orderDate": 1, "restaurantName": 1}}
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(res)
+        for res in results:
+            print(res)
 
     elif opcion == "13":
-        pipeline = [{"$group": {"_id": "$restaurantName", "Total": {"$count": {}}}}, {"$sort": {"Total": -1}}]
+        print("\nTop restaurantes con mayor cantidad de pedidos")
+        pipeline = [
+            {"$group": {"_id": "$restaurantName", "TotalPedidos": {"$count": {}}}}, 
+            {"$sort": {"TotalPedidos": -1}}
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(f"Restaurante: {res['_id']} | Pedidos: {res['Total']}")
+        for res in results:
+            print(f"Restaurante: {res['_id']} tiene {res['TotalPedidos']} pedidos")
 
     elif opcion == "14":
-        pipeline = [{"$group": {"_id": "$customerName", "Gasto": {"$sum": "$orderPrice"}}}, {"$sort": {"Gasto": -1}}]
+        print("\nClientes con mayor gasto total")
+        pipeline = [
+            {"$group": {"_id": "$customerName", "GastoTotal": {"$sum": "$orderPrice" }, "TotalOrdenes": {"$count": {}}}},
+            {"$sort": {"GastoTotal": -1}}
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(f"Cliente: {res['_id']} | Gasto Total: ${res['Gasto']:.2f}")
+        for res in results:
+            print(f"Cliente: {res['_id']} gasto en total: ${res['GastoTotal']:.2f} y sus ordenes en total son: {res['TotalOrdenes']}")
 
     elif opcion == "15":
-        pipeline = [{"$match": {"deliveryDistance": {"$gte": 10}}}, {"$sort": {"deliveryDistance": -1}}, {"$limit": 10}]
+        print("\nTop pedidos con la mayor distancia")
+        pipeline = [
+            {"$match": {"deliveryDistance": {"$gte": 10}}},
+            {"$sort": {"deliveryDistance": -1}},
+            {"$limit": 10} 
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(f"ID: {res['orderID']} | Distancia: {res['deliveryDistance']} km")
+        for res in results:
+            print(f"ID de la orden: {res['orderID']} distancia de entrega {res['deliveryDistance']} km del cliente {res['customerName']}")
 
     elif opcion == "16":
-        pipeline = [{"$group": {"_id": "$delivererName", "Rating": {"$avg": "$deliveryRating"}}}, {"$sort": {"Rating": -1}}, {"$limit": 5}]
+        print("\nTop repartidores")
+        pipeline = [
+            {"$group": {"_id": "$delivererName", "Rating": {"$avg": "$deliveryRating" }}},
+            {"$sort": {"Rating":-1}}, 
+            {"$limit": 5}
+        ]
         results = coll.aggregate(pipeline)
-        for res in results: print(f"Repartidor: {res['_id']} | Rating: {res['Rating']:.2f}")
+        for res in results:
+            print(f"Repartidor: {res['_id']} su rating es {res['Rating']:.2f}")
+    
 
     # --- DGRAPH (con prefijo dg.) ---
     elif opcion == "17":
@@ -277,7 +427,7 @@ while True:
                 print(f"- Cliente: {user.get('user_name', 'N/A')}")
                 print(f"- Restaurante: {rest.get('restaurant_name', 'N/A')}")
                 print(f"- Repartidor: {driver.get('driver_name', 'N/A')}")
-    
+  
     else:
         print("\nOpcion invalida.")
 

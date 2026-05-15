@@ -7,7 +7,7 @@ from faker import Faker
 fake = Faker("es_MX")
 
 # =========================================
-# DATOS BASE
+# DATOS semilla
 # =========================================
 
 usuarios = [

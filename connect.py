@@ -11,6 +11,7 @@ DGRAPH_URI = os.getenv('DGRAPH_URI', 'localhost:9080')
 def start_containers():
     #""" Levanta mongo, cassandra y dgraph """ 
     print("Iniciando contenedores (Docker)...")
+
     # MongoDB
     os.system("docker run -d -p 27017:27017 --name mongodb mongo 2>nul || docker start mongodb")
     # Cassandra
@@ -26,14 +27,20 @@ def get_cassandra():
     
 
 
+
 def get_mongodb():
-    #""" Conexion a MongoDB """
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client["restaurante_db"]
-    coll = db["pedidos_detalles"] 
-    return client, db, coll
+    """Conexión a MongoDB (Docker)"""
+    try:
+        client = MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=5000)
+        db = client["restaurante_db"]
+        coll = db["pedidos"]    
+        return client, db, coll
+    except Exception as e:
+        print(f"Error conectando a MongoDB: {e}")
+        return None, None, None
 
 def get_dgraph():
+
     #""" Conexion a Dgraph """
     stub = pydgraph.DgraphClientStub(DGRAPH_URI)
     client = pydgraph.DgraphClient(stub)
