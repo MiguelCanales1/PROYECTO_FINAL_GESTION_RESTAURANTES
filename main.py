@@ -5,7 +5,7 @@ from connect import start_containers
 
 start_containers()
 
-stub, client_dg = get_dgraph
+stub, client_dg = get_dgraph()
 client, db_mongo, coll = get_mongodb()
 cluster, session = get_cassandra()
 session.set_keyspace("restaurante_db")

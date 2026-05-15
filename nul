@@ -1,0 +1,3 @@
+docker: Error response from daemon: Conflict. The container name "/dgraph" is already in use by container "837b8631a32cf8fd4151f7d5afc7ae658b23ae37faefe4785b8cb62cabdd6356". You have to remove (or rename) that container to be able to reuse that name.
+
+Run 'docker run --help' for more information
