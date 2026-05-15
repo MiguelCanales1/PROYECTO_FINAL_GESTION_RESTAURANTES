@@ -9,18 +9,22 @@ CASSANDRA_IPS = os.getenv('CASSANDRA_CLUSTER_IPS', '127.0.0.1')
 DGRAPH_URI = os.getenv('DGRAPH_URI', 'localhost:9080')
 
 def start_containers():
-    #""" Levanta mongo y cassandra""" 
-    print("Iniciando contenedores...")
+    #""" Levanta mongo, cassandra y dgraph """ 
+    print("Iniciando contenedores (Docker)...")
     # MongoDB
-    os.system("docker run -d -p 27017:27017 --name mongodb mongo 2>/dev/null || docker start mongodb")
+    os.system("docker run -d -p 27017:27017 --name mongodb mongo 2>nul || docker start mongodb")
     # Cassandra
-    os.system("docker run -d -p 9042:9042 --name cassandra cassandra 2>/dev/null || docker start cassandra")
+    os.system("docker run -d -p 9042:9042 --name cassandra cassandra 2>nul || docker start cassandra")
+    # Dgraph
+    os.system("docker run -d -p 8080:8080 -p 9080:9080 --name dgraph dgraph/standalone:latest 2>nul || docker start dgraph")
 
 def get_cassandra():
     #""" Conexion a Cassandra """
     cluster = Cluster(CASSANDRA_IPS.split(','))
     session = cluster.connect()
     return cluster, session
+    
+
 
 def get_mongodb():
     #""" Conexion a MongoDB """

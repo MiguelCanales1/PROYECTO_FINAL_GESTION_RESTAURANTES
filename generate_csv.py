@@ -1,6 +1,7 @@
 import csv
 import uuid
 import random
+# pyrefly: ignore [missing-import]
 from faker import Faker
 
 fake = Faker("es_MX")
@@ -61,6 +62,13 @@ zonas = [
     "Chapultepec"
 ]
 
+platillos_por_categoria = {
+    "Mexicana": ["Tacos al Pastor", "Enchiladas", "Guacamole", "Quesadillas"],
+    "Italiana": ["Pizza Margherita", "Lasagna", "Pasta Carbonara", "Ravioli"],
+    "Japonesa": ["Sushi Moriawase", "Ramen", "Tempura", "Sashimi"],
+    "Americana": ["Cheeseburger", "Hot Dog", "Buffalo Wings", "BBQ Ribs"],
+    "China": ["Arroz Frito", "Dumplings", "Pollo Agridulce", "Spring Rolls"]
+}
 # =========================================
 # CREAR CSV
 # =========================================
@@ -86,13 +94,15 @@ with open("data/pedidos.csv", mode="w", newline="", encoding="utf-8") as file:
         "zona",
         "direccion",
         "tipo_paqueteria",
-        "categoria"
+        "categoria", 
+        "platillo"
     ])
 
     # GENERAR 300 PEDIDOS
     for _ in range(300):
 
         restaurante, categoria = random.choice(restaurantes)
+        platillo = random.choice(platillos_por_categoria.get(categoria, ["Platillo Generico"]))
 
         writer.writerow([
             random.choice(usuarios),
@@ -110,7 +120,8 @@ with open("data/pedidos.csv", mode="w", newline="", encoding="utf-8") as file:
             random.choice(zonas),
             fake.address().replace("\n", " "),
             random.choice(paqueterias),
-            categoria
+            categoria,
+            platillo
         ])
 
 print("CSV generado correctamente.")
