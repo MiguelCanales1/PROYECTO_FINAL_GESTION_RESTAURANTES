@@ -15,6 +15,8 @@ def start_containers():
     os.system("docker run -d -p 27017:27017 --name mongodb mongo 2>/dev/null || docker start mongodb")
     # Cassandra
     os.system("docker run -d -p 9042:9042 --name cassandra cassandra 2>/dev/null || docker start cassandra")
+    #Dgraph
+    os.system("docker run -d -p 8080:8080 -p 9080:9080 --name dgraph dgraph/standalone:latest 2>nul || docker start dgraph")
 
 def get_cassandra():
     #""" Conexion a Cassandra """
