@@ -303,30 +303,130 @@ while True:
         for res in results:
             print(f"Repartidor: {res['_id']} su rating es {res['Rating']:.2f}")
     
+
+    # --- DGRAPH (con prefijo dg.) ---
     elif opcion == "17":
-        print("\nConsulta Dgraph 1")
+        user_id = input("Nombre del usuario: ")
+        res = dg.restaurantes_favoritos(user_id)
+        print(f"\n--- RESTAURANTES DE {user_id.upper()} ---")
+        seen = set()
+        for u in res.get("usuarios", []):
+            for f in u.get("FAVORITE", []):
+                rid = f['restaurant_id']
+                if rid not in seen:
+                    print(f"- {f['restaurant_name']} ({f['category']}) en {f['zone']} [Favorito]")
+                    seen.add(rid)
+            for p in u.get("PLACES", []):
+                for f in p.get("FROM", []):
+                    rid = f['restaurant_id']
+                    if rid not in seen:
+                        print(f"- {f['restaurant_name']} ({f['category']}) en {f['zone']} [Frecuente]")
+                        seen.add(rid)
 
     elif opcion == "18":
-        print("\nConsulta Dgraph 2")
+        user_id = input("Nombre del usuario: ")
+        res = dg.platillos_usuario(user_id)
+        print(f"\n--- PLATILLOS DE {user_id.upper()} ---")
+        for u in res.get("usuarios", []):
+            for p in u.get("PLACES", []):
+                rest = p.get("FROM", [{}])[0]
+                for dish in p.get("CONTAINS", []):
+                    print(f"- {dish['dish_name']} ({dish['category']}) en {rest.get('restaurant_name')}")
 
     elif opcion == "19":
-        print("\nConsulta Dgraph 3")
+        rest_name = input("Nombre del restaurante: ")
+        res = dg.restaurantes_relacionados(rest_name)
+        print(f"\n--- RELACIONADOS CON {rest_name.upper()} ---")
+        related = {}
+        for r in res.get("restaurantes", []):
+            for order in r.get("~FROM", []):
+                for user in order.get("~PLACES", []):
+                    for u_order in user.get("PLACES", []):
+                        for other_rest in u_order.get("FROM", []):
+                            rid = other_rest['restaurant_id']
+                            if rid not in related:
+                                related[rid] = {"name": other_rest['restaurant_name'], "cat": other_rest['category'], "count": 0}
+                            related[rid]["count"] += 1
+        for rid, data in related.items():
+            print(f"- {data['name']} ({data['cat']}) | Clientes en común: {data['count']}")
 
     elif opcion == "20":
-        print("\nConsulta Dgraph 4")
+        user_id = input("Nombre del usuario: ")
+        res = dg.recomendaciones(user_id)
+        print(f"\n--- RECOMENDACIONES PARA {user_id.upper()} ---")
+        seen = set()
+        for u in res.get("usuarios", []):
+            for p in u.get("PLACES", []):
+                for f in p.get("FROM", []):
+                    for fr in f.get("~FROM", []):
+                        for u_sim in fr.get("~PLACES", []):
+                            for p_sim in u_sim.get("PLACES", []):
+                                for r_rec in p_sim.get("FROM", []):
+                                    rid = r_rec['restaurant_id']
+                                    if rid not in seen:
+                                        print(f"- {r_rec['restaurant_name']} ({r_rec['category']}) en {r_rec['zone']} | Razón: Gustos similares")
+                                        seen.add(rid)
 
     elif opcion == "21":
-        print("\nConsulta Dgraph 5")
+        user_id = input("Nombre del usuario: ")
+        res = dg.usuarios_similares(user_id)
+        print(f"\n--- USUARIOS SIMILARES A {user_id.upper()} ---")
+        sim_users = {}
+        for u in res.get("usuarios", []):
+            for p in u.get("PLACES", []):
+                for r in p.get("FROM", []):
+                    for order in r.get("~FROM", []):
+                        for other_u in order.get("~PLACES", []):
+                            name = other_u['user_name']
+                            if name not in sim_users: sim_users[name] = {"id": other_u['user_id'], "rest": set(), "dish": set()}
+                            sim_users[name]["rest"].add(r['restaurant_name'])
+                for d in p.get("CONTAINS", []):
+                    for d_order in d.get("~CONTAINS", []):
+                        for other_u in d_order.get("~PLACES", []):
+                            name = other_u['user_name']
+                            if name not in sim_users: sim_users[name] = {"id": other_u['user_id'], "rest": set(), "dish": set()}
+                            sim_users[name]["dish"].add(d['dish_name'])
+        for name, data in sim_users.items():
+            if name != user_id:
+                print(f"- {name} (ID: {data['id']}) | Rest. común: {len(data['rest'])}, Platillos común: {len(data['dish'])}")
 
     elif opcion == "22":
-        print("\nConsulta Dgraph 6")
+        zona = input("Zona: ")
+        cat = input("Categoría: ")
+        res = dg.restaurantes_zona_categoria(zona, cat)
+        print(f"\n--- RESTAURANTES EN {zona} ({cat}) ---")
+        for r in res.get("restaurantes", []):
+            print(f"- {r['restaurant_name']} en {r['address']} (ID: {r['restaurant_id']})")
 
     elif opcion == "23":
-        print("\nConsulta Dgraph 7")
+        rest_name = input("Nombre del restaurante: ")
+        res = dg.repartidores_restaurante(rest_name)
+        print(f"\n--- REPARTIDORES PARA {rest_name.upper()} ---")
+        seen_drivers = set()
+        for r in res.get("restaurantes", []):
+            for w in r.get("~WORKS_IN", []):
+                driver_id = w.get('driver_id')
+                if driver_id not in seen_drivers:
+                    zones = set()
+                    for delivery in w.get("DELIVERS", []):
+                        for user in delivery.get("~PLACES", []):
+                            zones.add(user.get("zone", "N/A"))
+                    print(f"- {w['driver_name']} | Zonas: {', '.join(zones)}")
+                    seen_drivers.add(driver_id)
 
     elif opcion == "24":
-        print("\nConsulta Dgraph 8")
-    
+        order_id = input("ID del pedido: ").strip()
+        if order_id:
+            res = dg.relacion_pedido(order_id)
+            print(f"\n--- DETALLE DEL PEDIDO {order_id} ---")
+            for p in res.get("pedidos", []):
+                user = p.get("~PLACES", [{}])[0]
+                rest = p.get("FROM", [{}])[0]
+                driver = p.get("~DELIVERS", [{}])[0]
+                print(f"- Cliente: {user.get('user_name', 'N/A')}")
+                print(f"- Restaurante: {rest.get('restaurant_name', 'N/A')}")
+                print(f"- Repartidor: {driver.get('driver_name', 'N/A')}")
+  
     else:
         print("\nOpcion invalida.")
 
